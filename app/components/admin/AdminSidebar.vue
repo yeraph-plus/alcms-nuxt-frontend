@@ -25,16 +25,16 @@
           <el-icon><component :is="iconComponents[item.icon]" /></el-icon>
           <template #title>{{ item.title }}</template>
         </el-menu-item>
-        
+
         <!-- 子菜单 -->
         <el-sub-menu v-else-if="item.type === 'submenu'" :index="item.index">
           <template #title>
             <el-icon><component :is="iconComponents[item.icon]" /></el-icon>
             <span>{{ item.title }}</span>
           </template>
-          <el-menu-item 
-            v-for="child in item.children" 
-            :key="child.index" 
+          <el-menu-item
+            v-for="child in item.children"
+            :key="child.index"
             :index="child.index"
           >
             {{ child.title }}
@@ -47,7 +47,6 @@
     <div class="sidebar-footer" v-if="!collapsed">
       <div class="version-info">
         <p>版本: v1.0.0</p>
-        <p>在线用户: {{ onlineUsers }}</p>
       </div>
     </div>
   </aside>
@@ -59,19 +58,19 @@ import {
   Document,
   User,
   Odometer,
-  TrendCharts
-} from '@element-plus/icons-vue'
+  TrendCharts,
+} from "@element-plus/icons-vue";
 
 // 当前路由
-const route = useRoute()
+const route = useRoute();
 
 // 定义props
 const props = defineProps({
   collapsed: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
 // 图标组件映射
 const iconComponents = {
@@ -79,32 +78,32 @@ const iconComponents = {
   Document,
   User,
   Odometer,
-  TrendCharts
-}
+  TrendCharts,
+};
 
 // 当前激活的菜单项
 const activeMenu = computed(() => {
-  return route.path
-})
+  return route.path;
+});
 
 // 导航菜单数组
 const menuItems = ref([
   {
-    index: '/admin',
-    title: '仪表盘',
-    icon: 'Odometer',
-    type: 'item'
+    index: "/admin",
+    title: "仪表盘",
+    icon: "Odometer",
+    type: "item",
   },
   {
-    index: 'users',
-    title: '用户管理',
-    icon: 'User',
-    type: 'submenu',
+    index: "users",
+    title: "用户管理",
+    icon: "User",
+    type: "submenu",
     children: [
-      { index: '/admin/users', title: '用户列表' },
-      { index: '/admin/roles', title: '角色权限' },
-      { index: '/admin/permissions', title: '权限管理' }
-    ]
+      { index: "/admin/users", title: "用户列表" },
+      { index: "/admin/roles", title: "角色权限" },
+      { index: "/admin/permissions", title: "权限管理" },
+    ],
   },
   /*
   {
@@ -139,26 +138,12 @@ const menuItems = ref([
   },
   */
   {
-    index: '/admin/rearend',
-    title: '接口文档',
-    icon: 'Document',
-    type: 'item'
-  }
-])
-
-// 假数据 - 在线用户数
-const onlineUsers = ref(128)
-
-// 模拟实时更新在线用户数
-onMounted(() => {
-  const interval = setInterval(() => {
-    onlineUsers.value = Math.floor(Math.random() * 200) + 50
-  }, 5000)
-  
-  onUnmounted(() => {
-    clearInterval(interval)
-  })
-})
+    index: "/admin/rearend",
+    title: "接口文档",
+    icon: "Document",
+    type: "item",
+  },
+]);
 </script>
 
 <style scoped>
@@ -243,12 +228,12 @@ onMounted(() => {
   background: #4a6741;
 }
 
-/* 响应式设计 */
+/* 响应式 */
 @media (max-width: 768px) {
   .admin-sidebar {
     transform: translateX(-100%);
   }
-  
+
   .admin-sidebar.mobile-show {
     transform: translateX(0);
   }

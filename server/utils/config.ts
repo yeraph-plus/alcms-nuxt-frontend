@@ -113,12 +113,12 @@ export const API_ENDPOINTS = {
     // 获取当前用户信息
     profile: {
       method: "GET",
-      url: "/api/auth/profile",
+      url: "/api/users/profile",
       roles: ALL_USER_ROLES,
       header: { Auth: true },
       body: {},
     },
-    // 更新用户资料
+    // 更新当前用户资料
     updateProfile: {
       method: "PUT",
       url: "/api/users/profile",
@@ -145,21 +145,47 @@ export const API_ENDPOINTS = {
         },
       },
     },
-    // 创建用户（管理员）
-    create: {
-      method: "POST",
-      url: "/api/users",
-      roles: ["admin"],
+    // 修改密码
+    updatePassword: {
+      method: "PUT", 
+      url: "/api/users/password",
+      roles: ALL_USER_ROLES,
       header: { Auth: true },
       body: {
-        email: {
+        currentPassword: {
           required: true,
           type: "string",
-          example: "test@example.com",
-          desc: "用户邮箱",
+          example: "TestPass123!",
+          desc: "旧密码",
+          // 添加密码验证规则
+          validate: (value: string) => {
+            if(!value || value.length < 8) return "密码长度至少8位";
+            if(!/[A-Z]/.test(value)) return "密码必须包含大写字母";
+            if(!/[a-z]/.test(value)) return "密码必须包含小写字母";
+            if(!/[0-9]/.test(value)) return "密码必须包含数字";
+            if(!/[!@#$%^&*]/.test(value)) return "密码必须包含特殊字符";
+            return true;
+          }
+        },
+        newPassword: {
+          required: true,
+          type: "string", 
+          example: "NewPass123!",
+          desc: "新密码",
+          // 添加新密码验证规则
+          validate: (value: string, formData: any) => {
+            if(!value || value.length < 8) return "密码长度至少8位";
+            if(!/[A-Z]/.test(value)) return "密码必须包含大写字母";
+            if(!/[a-z]/.test(value)) return "密码必须包含小写字母";
+            if(!/[0-9]/.test(value)) return "密码必须包含数字";
+            if(!/[!@#$%^&*]/.test(value)) return "密码必须包含特殊字符";
+            if(value === formData.currentPassword) return "新密码不能与旧密码相同";
+            return true;
+          }
         },
       },
     },
+    // 获取用户列表（管理员）
     list: {
       method: "GET",
       url: "/api/users",
@@ -176,18 +202,41 @@ export const API_ENDPOINTS = {
           example: 20,
           desc: "每页数量",
         },
+        role: {
+          type: "string",
+          example: "user", //vip, moderator, admin
+          desc: "用户角色",
+        },
         status: {
           type: "string",
-          example: "normal", //normal, frozen
+          example: "active", //inactive, banned
           desc: "用户状态",
         },
         search: {
           type: "string",
           example: "test",
-          desc: "搜索关键词",
+          desc: "搜索关键词", // 用户名、邮箱、昵称
         },
       },
     },
+    // 创建用户（管理员）
+    /*
+    create: {
+      method: "POST",
+      url: "/api/users",
+      roles: ["admin"],
+      header: { Auth: true },
+      body: {
+        email: {
+          required: true,
+          type: "string",
+          example: "test@example.com",
+          desc: "用户邮箱",
+        },
+      },
+    },
+    */
+    // 获取用户统计信息（管理员）
     stats: {
       method: "GET",
       url: "/api/users/stats",
