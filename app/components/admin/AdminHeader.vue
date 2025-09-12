@@ -102,14 +102,16 @@ const searchKeyword = ref('')
 // 通知数量（假数据）
 const notificationCount = ref(5)
 
-// 用户信息（假数据）
-const userInfo = reactive({
-  name: '管理员',
-  avatar: '',
-  role: 'Administrator',
-  email: 'admin@alcms.com',
-  lastLogin: '2024-01-15 10:30:00'
-})
+// 获取认证状态
+const authStore = useAuthStore()
+
+// 用户信息
+const userInfo = computed(() => ({
+  name: authStore.userDisplayName,
+  avatar: authStore.user?.avatar_url || '',
+  role: authStore.user?.role || 'user',
+  email: authStore.user?.email || '',
+}))
 
 // 面包屑导航
 const breadcrumbItems = computed(() => {
@@ -198,9 +200,10 @@ const handleLogout = async () => {
       }
     )
     
-    // 这里可以调用实际的登出API
+    // 调用登出API
+    await authStore.logout()
     ElMessage.success('已退出登录')
-    router.push('/login')
+    await router.push('/admin/login')
   } catch {
     // 用户取消
   }

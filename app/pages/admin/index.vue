@@ -195,7 +195,7 @@ import { ElMessage } from "element-plus";
 // 设置页面布局
 definePageMeta({
   layout: "dashboard",
-  middleware: "",
+  middleware: "auth",
 });
 
 // 统计数据（假数据）
