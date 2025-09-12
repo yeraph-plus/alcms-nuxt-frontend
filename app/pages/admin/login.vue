@@ -63,7 +63,7 @@
             <template v-if="!loading">
               <el-icon><Key /></el-icon>
             </template>
-            {{ loading ? '登录中...' : '立即登录' }}
+            {{ loading ? "登录中..." : "立即登录" }}
           </el-button>
         </el-form-item>
       </el-form>
@@ -86,103 +86,103 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElNotification } from 'element-plus'
-import { User, Lock, Key } from '@element-plus/icons-vue'
+import { ref, reactive, onMounted } from "vue";
+import { ElMessage, ElNotification } from "element-plus";
+import { User, Lock, Key } from "@element-plus/icons-vue";
 
 // 设置页面元信息
 definePageMeta({
   layout: false,
-  middleware: 'guest'
-})
+  middleware: "guest",
+});
 
 useHead({
-  title: '管理员登录 - ALCMS',
-  meta: [
-    { name: 'description', content: 'ALCMS 内容管理系统管理员登录页面' }
-  ]
-})
+  title: "管理员登录 - ALCMS",
+  meta: [{ name: "description", content: "ALCMS 内容管理系统管理员登录页面" }],
+});
 
-const authStore = useAuthStore()
-const router = useRouter()
+const authStore = useAuthStore();
+const router = useRouter();
 
 // 响应式数据
-const loginFormRef = ref()
-const loading = ref(false)
-const rememberMe = ref(true)
+const loginFormRef = ref();
+const loading = ref(false);
+const rememberMe = ref(true);
 
 const loginForm = reactive({
-  email: '',
-  password: ''
-})
+  email: "",
+  password: "",
+});
 
 // 表单验证规则
 const loginRules = {
   email: [
-    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { required: true, message: "请输入邮箱地址", trigger: "blur" },
+    { type: "email", message: "请输入正确的邮箱格式", trigger: "blur" },
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
-  ]
-}
+    { required: true, message: "请输入密码", trigger: "blur" },
+    { min: 6, message: "密码长度不能少于6位", trigger: "blur" },
+  ],
+};
 
 // 登录处理
 const handleLogin = async () => {
-  if (!loginFormRef.value) return
+  if (!loginFormRef.value) return;
 
   try {
     // 验证表单
-    await loginFormRef.value.validate()
-    
-    loading.value = true
+    await loginFormRef.value.validate();
+
+    loading.value = true;
 
     // 调用登录接口
-    const result = await authStore.login(loginForm.email, loginForm.password)
+    const result = await authStore.login(loginForm.email, loginForm.password);
 
     if (result.success) {
       ElNotification({
-        title: '登录成功',
-        message: '欢迎回来！即将跳转到管理后台',
-        type: 'success',
-        duration: 3000
-      })
+        title: "登录成功",
+        message: "欢迎回来！即将跳转到管理后台",
+        type: "success",
+        duration: 3000,
+      });
 
       // 检查用户权限
       if (!authStore.isAdmin && !authStore.isModerator) {
-        ElMessage.warning('您没有访问管理后台的权限')
-        await authStore.logout()
-        return
+        ElMessage.warning("您没有访问管理后台的权限");
+        await authStore.logout();
+        return;
       }
 
       // 延迟跳转以显示成功消息
       setTimeout(() => {
-        router.push('/admin')
-      }, 1500)
+        router.push("/admin");
+      }, 1500);
     } else {
-      ElMessage.error(result.message || '登录失败')
+      ElMessage.error(result.message || "登录失败");
     }
   } catch (error) {
-    console.error('登录表单验证失败:', error)
-    ElMessage.error('请检查输入信息')
+    console.error("登录表单验证失败:", error);
+    ElMessage.error("请检查输入信息");
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 组件挂载时检查是否已登录
+const { isLoggedIn } = useJwt();
+
 onMounted(() => {
-  if (authStore.isLoggedIn) {
+  if (isLoggedIn.value) {
     // 如果已登录且有权限，直接跳转
     if (authStore.isAdmin || authStore.isModerator) {
-      router.push('/admin')
+      router.push("/admin");
     } else {
       // 权限不足，清除登录状态
-      authStore.logout()
+      authStore.logout();
     }
   }
-})
+});
 </script>
 
 <style scoped>
@@ -340,7 +340,8 @@ onMounted(() => {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -353,15 +354,15 @@ onMounted(() => {
   .login-container {
     padding: 12px;
   }
-  
+
   .login-card {
     padding: 24px;
   }
-  
+
   .title {
     font-size: 24px;
   }
-  
+
   .subtitle {
     font-size: 14px;
   }
