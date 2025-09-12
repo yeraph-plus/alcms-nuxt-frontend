@@ -109,7 +109,7 @@ export const useAuthStore = defineStore('auth', {
           this.token = response.data.accessToken
           
           if (process.client) {
-            localStorage.setItem('auth_token', this.token)
+            localStorage.setItem('auth_token', this.token!)
           }
 
           return true
