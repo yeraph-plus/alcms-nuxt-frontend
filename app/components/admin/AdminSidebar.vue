@@ -1,5 +1,9 @@
 <template>
-  <aside class="admin-sidebar" :class="{ collapsed: collapsed }">
+  <aside
+    class="admin-sidebar"
+    :class="{ collapsed: collapsed }"
+    :style="{ width: currentWidth + 'px' }"
+  >
     <!-- Logo区域 -->
     <div class="sidebar-header">
       <div class="logo">
@@ -70,6 +74,19 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  width: {
+    type: Number,
+    default: 250,
+  },
+  collapsedWidth: {
+    type: Number,
+    default: 64,
+  },
+});
+
+// 计算当前宽度
+const currentWidth = computed(() => {
+  return props.collapsed ? 64 : 250;
 });
 
 // 图标组件映射
@@ -101,42 +118,9 @@ const menuItems = ref([
     type: "submenu",
     children: [
       { index: "/admin/users", title: "用户列表" },
-      { index: "/admin/roles", title: "角色权限" },
-      { index: "/admin/permissions", title: "权限管理" },
+      { index: "/admin/users/roles", title: "用户组" },
     ],
   },
-  /*
-  {
-    index: 'content',
-    title: '内容管理',
-    icon: 'Document',
-    type: 'submenu',
-    children: [
-      { index: '/admin/articles', title: '文章管理' },
-      { index: '/admin/categories', title: '分类管理' },
-      { index: '/admin/tags', title: '标签管理' },
-      { index: '/admin/media', title: '媒体库' }
-    ]
-  },
-  {
-    index: 'system',
-    title: '系统设置',
-    icon: 'Setting',
-    type: 'submenu',
-    children: [
-      { index: '/admin/settings', title: '基本设置' },
-      { index: '/admin/themes', title: '主题配置' },
-      { index: '/admin/plugins', title: '插件管理' },
-      { index: '/admin/backup', title: '数据备份' }
-    ]
-  },
-  {
-    index: '/admin/analytics',
-    title: '统计分析',
-    icon: 'TrendCharts',
-    type: 'item'
-  },
-  */
   {
     index: "/admin/rearend",
     title: "接口文档",
@@ -152,15 +136,12 @@ const menuItems = ref([
   left: 0;
   top: 0;
   bottom: 0;
-  width: 250px;
   background-color: #304156;
   z-index: 1000;
   display: flex;
   flex-direction: column;
-}
-
-.admin-sidebar.collapsed {
-  width: 64px;
+  flex-shrink: 0;
+  transition: width 0.3s ease;
 }
 
 .sidebar-header {
@@ -188,10 +169,6 @@ const menuItems = ref([
   flex: 1;
   border: none;
   overflow-y: auto;
-}
-
-.sidebar-menu:not(.el-menu--collapse) {
-  width: 250px;
 }
 
 .sidebar-footer {
@@ -232,6 +209,7 @@ const menuItems = ref([
 @media (max-width: 768px) {
   .admin-sidebar {
     transform: translateX(-100%);
+    transition: transform 0.3s ease, width 0.3s ease;
   }
 
   .admin-sidebar.mobile-show {

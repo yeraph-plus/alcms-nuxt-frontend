@@ -1,6 +1,5 @@
 /**
  *
- * http://127.0.0.1:3000/api/
  * http://127.0.0.1:3000/api-docs/
  */
 
@@ -8,10 +7,13 @@
 export const API_BASE_URL = "http://127.0.0.1:3000"; // 移除末尾斜杠
 export const API_TIMEOUT = 10000;
 
-//用户角色
+// 系统用户角色字段
 export const ALL_USER_ROLES = ["user", "vip", "moderator", "admin"];
 
-//角色可用操作表
+// 系统用户状态字段
+export const ALL_USER_STATUS = ["normal", "banned", "frozen"];
+
+//系统角色可用的操作表
 export const ALL_USER_OPERATIONS = {
   user: [],
   vip: [],
@@ -21,6 +23,23 @@ export const ALL_USER_OPERATIONS = {
 
 // 接口端点配置和参数定义
 export const API_ENDPOINTS = {
+  // 测试接口
+  ping: {
+    ping: {
+      method: "GET",
+      url: "/ping",
+      roles: ALL_USER_ROLES,
+      header: { Auth: false },
+      params: {},
+    },
+    health: {
+      method: "GET",
+      url: "/health",
+      roles: ALL_USER_ROLES,
+      header: { Auth: false },
+      params: {},
+    },
+  },
   // 用户认证相关接口
   auth: {
     // 用户注册
@@ -110,7 +129,7 @@ export const API_ENDPOINTS = {
   },
   // 用户管理接口
   users: {
-    // 获取当前用户信息
+    // 获取当前用户资料
     profile: {
       method: "GET",
       url: "/api/users/profile",
@@ -147,7 +166,7 @@ export const API_ENDPOINTS = {
     },
     // 修改密码
     updatePassword: {
-      method: "PUT", 
+      method: "PUT",
       url: "/api/users/password",
       roles: ALL_USER_ROLES,
       header: { Auth: true },
@@ -157,33 +176,22 @@ export const API_ENDPOINTS = {
           type: "string",
           example: "TestPass123!",
           desc: "旧密码",
-          // 添加密码验证规则
-          validate: (value: string) => {
-            if(!value || value.length < 8) return "密码长度至少8位";
-            if(!/[A-Z]/.test(value)) return "密码必须包含大写字母";
-            if(!/[a-z]/.test(value)) return "密码必须包含小写字母";
-            if(!/[0-9]/.test(value)) return "密码必须包含数字";
-            if(!/[!@#$%^&*]/.test(value)) return "密码必须包含特殊字符";
-            return true;
-          }
         },
         newPassword: {
           required: true,
-          type: "string", 
+          type: "string",
           example: "NewPass123!",
           desc: "新密码",
-          // 添加新密码验证规则
-          validate: (value: string, formData: any) => {
-            if(!value || value.length < 8) return "密码长度至少8位";
-            if(!/[A-Z]/.test(value)) return "密码必须包含大写字母";
-            if(!/[a-z]/.test(value)) return "密码必须包含小写字母";
-            if(!/[0-9]/.test(value)) return "密码必须包含数字";
-            if(!/[!@#$%^&*]/.test(value)) return "密码必须包含特殊字符";
-            if(value === formData.currentPassword) return "新密码不能与旧密码相同";
-            return true;
-          }
         },
       },
+    },
+    // 获取用户统计信息（管理员）
+    stats: {
+      method: "GET",
+      url: "/api/users/stats",
+      roles: ["admin"],
+      header: { Auth: true },
+      params: {},
     },
     // 获取用户列表（管理员）
     list: {
@@ -209,7 +217,7 @@ export const API_ENDPOINTS = {
         },
         status: {
           type: "string",
-          example: "active", //inactive, banned
+          example: "normal", //banned, frozen
           desc: "用户状态",
         },
         search: {
@@ -220,71 +228,146 @@ export const API_ENDPOINTS = {
       },
     },
     // 创建用户（管理员）
-    /*
     create: {
       method: "POST",
       url: "/api/users",
       roles: ["admin"],
       header: { Auth: true },
       body: {
+        username: {
+          required: true,
+          type: "string",
+          example: "test",
+          desc: "用户名",
+        },
         email: {
           required: true,
           type: "string",
           example: "test@example.com",
           desc: "用户邮箱",
         },
+        password: {
+          required: true,
+          type: "string",
+          example: "TestPass123!",
+          desc: "用户密码",
+        },
+        nickname: {
+          required: true,
+          type: "string",
+          example: "测试用户",
+          desc: "用户昵称",
+        },
+        roleName: {
+          required: true,
+          type: "string",
+          example: "user", //vip, moderator, admin
+          desc: "用户角色",
+        },
+        status: {
+          required: true,
+          type: "string",
+          example: "normal", //banned, frozen
+          desc: "用户状态",
+        },
       },
     },
-    */
-    // 获取用户统计信息（管理员）
-    stats: {
+    // 获取指定用户资料（管理员）
+    profileById: {
       method: "GET",
-      url: "/api/users/stats",
+      url: "/api/users/{id}",
       roles: ["admin"],
       header: { Auth: true },
       params: {},
     },
-    getById: {
-      method: "GET",
-      url: "/api/users/:userId",
-      roles: ALL_USER_ROLES,
-      header: { Auth: true },
-      params: {},
-    },
-    delete: {
+    // 删除指定用户（管理员）
+    deleteById: {
       method: "DELETE",
-      url: "/api/users/:userId",
+      url: "/api/users/{id}",
       roles: ["admin"],
       header: { Auth: true },
       params: {},
     },
-    updateStatus: {
+    // 更新指定用户状态（管理员）
+    updateStatusById: {
       method: "PUT",
-      url: "/api/users/:userId/status",
+      url: "/api/users/{id}/status",
       roles: ["admin"],
       header: { Auth: true },
-      body: {},
+      body: {
+        status: {
+          required: true,
+          type: "string",
+          example: "normal", //banned, frozen
+          desc: "用户状态",
+        },
+      },
     },
-    freeze: {
-      method: "PATCH",
-      url: "/api/users/:userId/freeze",
-      roles: ["admin"],
-      header: { Auth: true },
-      body: {},
-    },
-    assignRoles: {
+    // 为指定用户分配角色（管理员）
+    rolesById: {
       method: "POST",
-      url: "/api/users/:userId/roles",
+      url: "/api/users/{id}/roles",
       roles: ["admin"],
       header: { Auth: true },
-      body: {},
+      body: {
+        roleName: {
+          required: true,
+          type: "string",
+          example: "user", //vip, moderator, admin
+          desc: "用户角色",
+        },
+      },
     },
-    removeRoles: {
+    // 为指定用户移除角色（管理员）
+    removeRoleById: {
       method: "DELETE",
-      url: "/api/users/:userId/roles",
+      url: "/api/users/{id}/roles",
       roles: ["admin"],
       header: { Auth: true },
-      body: {},
+      body: {
+        roleName: {
+          required: true,
+          type: "string",
+          example: "user", //vip, moderator, admin
+          desc: "用户角色",
+        },
+      },
+    },
+    // 批量更新用户状态（管理员）
+    batchStatus: {
+      method: "PATCH",
+      url: "/api/users/batch/status",
+      roles: ["admin"],
+      header: { Auth: true },
+      body: {
+        userIds: {
+          required: true,
+          type: "array",
+          example: [2, 3, 4],
+          desc: "用户ID列表",
+        },
+        status: {
+          required: true,
+          type: "string",
+          example: "normal", //banned, frozen
+          desc: "用户状态",
+        },
+      },
+    },
+    // 批量删除用户（管理员）
+    batchDelete: {
+      method: "DELETE",
+      url: "/api/users/batch/delete",
+      roles: ["admin"],
+      header: { Auth: true },
+      body: {
+        userIds: {
+          required: true,
+          type: "array",
+          example: [2, 3, 4],
+          desc: "用户ID列表",
+        },
+      },
     },
   },
   // 内容管理接口

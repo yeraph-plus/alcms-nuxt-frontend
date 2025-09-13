@@ -87,7 +87,7 @@ export class ApiClient {
     let processedUrl = url;
     Object.entries(params).forEach(([key, value]) => {
       processedUrl = processedUrl.replace(
-        `:${key}`,
+        `{${key}}`,
         encodeURIComponent(String(value))
       );
     });

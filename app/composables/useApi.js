@@ -1,11 +1,11 @@
-import { ref, readonly } from 'vue';
-import { useJwt } from './useJwt';
+import { ref, readonly } from "vue";
+import { useJwt } from "./useJwt";
 
 export const useApi = () => {
   // 响应式状态
   const loading = ref(false);
   const error = ref(null);
-  
+
   // 获取JWT功能
   const { getValidAccessToken, tokenType } = useJwt();
 
@@ -15,7 +15,13 @@ export const useApi = () => {
     error.value = null;
 
     try {
-      const { method = "GET", headers = {}, body, query = {}, skipAuth = false } = options;
+      const {
+        method = "GET",
+        headers = {},
+        body,
+        query = {},
+        skipAuth = false,
+      } = options;
 
       // 构建请求URL
       let url = `/api/${path.replace(/^\//, "")}`;
@@ -28,16 +34,18 @@ export const useApi = () => {
           ...headers,
         },
       };
-      
+
       // 自动添加认证头（除非明确跳过）
       if (!skipAuth) {
         try {
           const token = await getValidAccessToken();
           if (token) {
-            requestConfig.headers.Authorization = `${tokenType.value || 'Bearer'} ${token}`;
+            requestConfig.headers.Authorization = `${
+              tokenType.value || "Bearer"
+            } ${token}`;
           }
         } catch (authError) {
-          console.warn('获取访问令牌失败:', authError);
+          console.warn("获取访问令牌失败:", authError);
         }
       }
 
@@ -57,6 +65,14 @@ export const useApi = () => {
         requestConfig.body = JSON.stringify(body);
       }
 
+      // 打印请求信息
+      console.log("request", {
+        url: url,
+        method: method,
+        headers: requestConfig.headers,
+        body: requestConfig.body,
+      });
+
       // 直接返回代理端点的响应，不做额外包装
       const response = await $fetch(url, requestConfig);
 
@@ -64,6 +80,14 @@ export const useApi = () => {
       if (!response.success) {
         error.value = response.message || null;
       }
+
+      // 打印响应信息
+      console.log("response", {
+        url: url,
+        method: method,
+        headers: response.headers,
+        body: response.body,
+      });
 
       return response;
     } catch (err) {
@@ -118,8 +142,9 @@ export const useApi = () => {
   const callEndpoint = async (endpointPath, options = {}) => {
     const { data, headers, method, skipAuth = false } = options;
 
-    // 将端点路径转换为API路径
-    const apiPath = endpointPath.replace(/\./g, "/");
+    // 直接传递端点路径，不进行转换
+    // 让代理层和apiClient处理端点别名逻辑
+    const apiPath = endpointPath; // 保持原始端点路径格式
 
     // 根据方法类型调用对应的请求方法
     switch (method?.toUpperCase()) {

@@ -1,6 +1,5 @@
 <template>
   <header class="admin-header">
-    <!-- 左侧操作区 -->
     <div class="header-left">
       <!-- 侧边栏切换按钮 -->
       <el-button
@@ -10,43 +9,24 @@
       >
         <el-icon size="20"><Expand /></el-icon>
       </el-button>
-      
-      <!-- 面包屑导航 -->
+
+      <!-- 面包屑 -->
       <el-breadcrumb separator="/" class="breadcrumb">
-        <el-breadcrumb-item :to="{ path: '/admin' }">管理后台</el-breadcrumb-item>
-        <el-breadcrumb-item v-for="item in breadcrumbItems" :key="item.path" :to="item.path">
+        <el-breadcrumb-item :to="{ path: '/admin' }">
+          仪表盘
+        </el-breadcrumb-item>
+        <el-breadcrumb-item
+          v-for="item in breadcrumbItems"
+          :key="item.path"
+          :to="item.path"
+        >
           {{ item.title }}
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
 
-    <!-- 右侧操作区 -->
     <div class="header-right">
-      <!-- 搜索框 -->
-      <div class="search-box">
-        <el-input
-          v-model="searchKeyword"
-          placeholder="搜索功能..."
-          :prefix-icon="Search"
-          size="small"
-          style="width: 200px"
-          @keyup.enter="handleSearch"
-        />
-      </div>
-
-      <!-- 通知铃铛 -->
-      <el-badge :value="notificationCount" class="notification-badge">
-        <el-button type="text" @click="showNotifications">
-          <el-icon size="18"><Bell /></el-icon>
-        </el-button>
-      </el-badge>
-
-      <!-- 全屏切换 -->
-      <el-button type="text" @click="toggleFullscreen" class="fullscreen-btn">
-        <el-icon size="18"><FullScreen /></el-icon>
-      </el-button>
-
-      <!-- 用户下拉菜单 -->
+      <!-- 用户菜单 -->
       <el-dropdown @command="handleUserCommand" class="user-dropdown">
         <div class="user-info">
           <el-avatar :size="32" :src="userInfo.avatar" class="user-avatar">
@@ -79,146 +59,99 @@
 <script setup>
 import {
   Expand,
-  Search,
-  Bell,
-  FullScreen,
   ArrowDown,
   User,
   Setting,
-  SwitchButton
-} from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+  SwitchButton,
+} from "@element-plus/icons-vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 
 // 定义事件
-const emit = defineEmits(['toggle-sidebar'])
+const emit = defineEmits(["toggle-sidebar"]);
 
 // 当前路由
-const route = useRoute()
-const router = useRouter()
-
-// 搜索关键词
-const searchKeyword = ref('')
-
-// 通知数量（假数据）
-const notificationCount = ref(5)
+const route = useRoute();
+const router = useRouter();
 
 // 获取认证状态
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 
 // 用户信息
 const userInfo = computed(() => ({
   name: authStore.userDisplayName,
-  avatar: authStore.user?.avatar_url || '',
-  role: authStore.user?.role || 'user',
-  email: authStore.user?.email || '',
-}))
-
-// 面包屑导航
-const breadcrumbItems = computed(() => {
-  const pathSegments = route.path.split('/').filter(Boolean)
-  const items = []
-  
-  // 根据路径生成面包屑
-  if (pathSegments.length > 1) {
-    const routeMap = {
-      'articles': '文章管理',
-      'categories': '分类管理',
-      'tags': '标签管理',
-      'media': '媒体库',
-      'users': '用户管理',
-      'roles': '角色权限',
-      'permissions': '权限管理',
-      'settings': '系统设置',
-      'themes': '主题配置',
-      'plugins': '插件管理',
-      'backup': '数据备份',
-      'analytics': '统计分析',
-      'logs': '日志管理'
-    }
-    
-    for (let i = 1; i < pathSegments.length; i++) {
-      const segment = pathSegments[i]
-      const title = routeMap[segment] || segment
-      items.push({
-        path: '/' + pathSegments.slice(0, i + 1).join('/'),
-        title
-      })
-    }
-  }
-  
-  return items
-})
-
-// 搜索处理
-const handleSearch = () => {
-  if (searchKeyword.value.trim()) {
-    ElMessage.info(`搜索: ${searchKeyword.value}`)
-    // 这里可以实现实际的搜索逻辑
-  }
-}
-
-// 显示通知
-const showNotifications = () => {
-  ElMessage.info('暂无新通知')
-  // 这里可以打开通知面板
-}
-
-// 全屏切换
-const toggleFullscreen = () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen()
-  } else {
-    document.exitFullscreen()
-  }
-}
+  avatar: authStore.user?.avatar_url || "",
+  role: authStore.user?.role || "user",
+  email: authStore.user?.email || "",
+}));
 
 // 用户菜单命令处理
 const handleUserCommand = (command) => {
   switch (command) {
-    case 'profile':
-      ElMessage.info('跳转到个人资料页面')
-      break
-    case 'settings':
-      ElMessage.info('跳转到账户设置页面')
-      break
-    case 'logout':
-      handleLogout()
-      break
+    case "profile":
+      ElMessage.info("跳转到个人资料页面");
+      break;
+    case "settings":
+      ElMessage.info("跳转到账户设置页面");
+      break;
+    case "logout":
+      handleLogout();
+      break;
   }
-}
+};
 
 // 退出登录
 const handleLogout = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要退出登录吗？',
-      '提示',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
+    await ElMessageBox.confirm("确定要退出登录吗？", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    });
+
     // 调用登出API
-    await authStore.logout()
-    ElMessage.success('已退出登录')
-    await router.push('/admin/login')
+    await authStore.logout();
+    ElMessage.success("已退出登录");
+    await router.push("/admin/login");
   } catch {
     // 用户取消
   }
-}
+};
 
-// 模拟通知数量变化
-onMounted(() => {
-  const interval = setInterval(() => {
-    notificationCount.value = Math.floor(Math.random() * 10)
-  }, 10000)
-  
-  onUnmounted(() => {
-    clearInterval(interval)
-  })
-})
+// 面包屑导航
+const breadcrumbItems = computed(() => {
+  const pathSegments = route.path.split("/").filter(Boolean);
+  const items = [];
+
+  // 根据路径生成面包屑
+  if (pathSegments.length > 1) {
+    const routeMap = {
+      articles: "文章管理",
+      categories: "分类管理",
+      tags: "标签管理",
+      media: "媒体库",
+      users: "用户管理",
+      roles: "角色权限",
+      permissions: "权限管理",
+      settings: "系统设置",
+      themes: "主题配置",
+      plugins: "插件管理",
+      backup: "数据备份",
+      analytics: "统计分析",
+      logs: "日志管理",
+    };
+
+    for (let i = 1; i < pathSegments.length; i++) {
+      const segment = pathSegments[i];
+      const title = routeMap[segment] || segment;
+      items.push({
+        path: "/" + pathSegments.slice(0, i + 1).join("/"),
+        title,
+      });
+    }
+  }
+
+  return items;
+});
 </script>
 
 <style scoped>
@@ -317,15 +250,15 @@ onMounted(() => {
   .admin-header {
     padding: 0 15px;
   }
-  
+
   .search-box {
     display: none;
   }
-  
+
   .breadcrumb {
     display: none;
   }
-  
+
   .username {
     display: none;
   }

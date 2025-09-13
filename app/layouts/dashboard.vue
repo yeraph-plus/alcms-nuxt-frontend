@@ -6,7 +6,7 @@
     <!-- 主要内容区域 -->
     <div
       class="main-container"
-      :class="{ 'sidebar-collapsed': sidebarCollapsed }"
+      :style="{ marginLeft: currentSidebarWidth + 'px' }"
     >
       <!-- 顶部导航 -->
       <AdminHeader @toggle-sidebar="toggleSidebar" />
@@ -25,13 +25,26 @@
 </template>
 
 <script setup>
-// 侧边栏折叠状态
+// 侧边栏配置
 const sidebarCollapsed = ref(false);
+
+// 计算当前侧边栏宽度
+const currentSidebarWidth = computed(() => {
+  return sidebarCollapsed.value ? 64 : 250;
+});
 
 // 切换侧边栏
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
 };
+
+// 响应式处理
+const { width } = useWindowSize();
+watch(width, (newWidth) => {
+  if (newWidth < 768) {
+    sidebarCollapsed.value = true;
+  }
+});
 
 // 页面元数据
 useHead({
@@ -42,42 +55,35 @@ useHead({
 
 <style scoped>
 .dashboard-layout {
-  display: flex;
   min-height: 100vh;
   background-color: #f5f5f5;
 }
 
 .main-container {
-  flex: 1;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  margin-left: 250px;
-  transition: margin-left 0.3s ease;
-}
-
-.main-container.sidebar-collapsed {
-  margin-left: 64px;
 }
 
 .content-wrapper {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .content-container {
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .main-container {
-    margin-left: 0;
-  }
-
-  .main-container.sidebar-collapsed {
-    margin-left: 0;
+    margin-left: 0 !important;
+    width: 100%;
   }
 }
 </style>

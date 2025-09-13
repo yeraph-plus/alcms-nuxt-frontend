@@ -70,9 +70,7 @@
 
       <!-- 底部信息 -->
       <div class="footer-info">
-        <el-text type="info" size="small">
-          © 2024 ALCMS. 专为管理员设计的内容管理系统
-        </el-text>
+        <el-text type="info" size="small"> © 2024 ALCMS. </el-text>
       </div>
     </div>
 
@@ -97,7 +95,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "管理员登录 - ALCMS",
+  title: "登录 - ALCMS",
   meta: [{ name: "description", content: "ALCMS 内容管理系统管理员登录页面" }],
 });
 
@@ -157,7 +155,7 @@ const handleLogin = async () => {
       // 延迟跳转以显示成功消息
       setTimeout(() => {
         router.push("/admin");
-      }, 1500);
+      }, 1000);
     } else {
       ElMessage.error(result.message || "登录失败");
     }
